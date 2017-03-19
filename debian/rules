@@ -1,0 +1,30 @@
+#!/usr/bin/make -f
+
+PACKAGE	= $(firstword $(shell dh_listpackages))
+SRC	= $(CURDIR)/client/
+TMP	= $(CURDIR)/debian/$(PACKAGE)
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	cp "$(CURDIR)/debian/Makefile" "$(SRC)/Makefile"
+
+override_dh_auto_build:
+	make -C "$(SRC)"
+
+override_dh_auto_install:
+	mkdir -p "$(TMP)/usr/sbin"
+	install -m 755 "$(SRC)/l2tp_client" "$(TMP)/usr/sbin/tunneldigger"
+	mkdir -p "$(TMP)/etc"
+	install -m 644 "$(CURDIR)/debian/tunneldigger.conf" "$(TMP)/etc/"
+	mkdir -p "$(TMP)/etc/init.d"
+	install -m 644 "$(CURDIR)/debian/tunneldigger.sh" "$(TMP)/etc/init.d/tunneldigger"
+
+override_dh_installdocs:
+
+override_dh_installchangelogs:
+
+override_dh_auto_clean:
+	make -C "$(SRC)" clean
+
